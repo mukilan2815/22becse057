@@ -4,28 +4,69 @@ import axios from "axios";
 
 export default function Home() {
   const [data, setData] = useState(null);
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [token, setToken] = useState(null);
+
+  useEffect(() => {
+    const fetchToken = async () => {
+      try {
+        const authResponse = await axios.post(
+          "http://20.244.56.144/test/auth",
+          {
+            companyName: "Karpagam Academy of Higher Education",
+            clientID: "5de1f93d-d75a-4a99-a743-1291ae2b0595",
+            clientSecret: "tSyqaRXDlBuCmczo",
+            ownerName: "Mukilan T",
+            ownerEmail: "22becse057@kahedu.edu.in",
+            rollNo: "22becse057",
+          }
+        );
+        setToken(authResponse.data.access_token);
+      } catch (error) {
+        setError("Error fetching token.");
+        console.error("Error fetching token:", error);
+      }
+    };
+
+    fetchToken();
+    const intervalId = setInterval(fetchToken, 60000); 
+
+    return () => clearInterval(intervalId); 
+  }, []);
 
   useEffect(() => {
     const fetchData = async () => {
+      if (!token) return;
+
       try {
         const response = await axios.get("http://20.244.56.144/test/users", {
           headers: {
-            Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJNYXBDbGFpbXMiOnsiZXhwIjoxNzQyNjI2MDg4LCJpYXQiOjE3NDI2MjU3ODgsImlzcyI6IkFmZm9yZG1lZCIsImp0aSI6IjVkZTFmOTNkLWQ3NWEtNGE5OS1hNzQzLTEyOTFhZTJiMDU5NSIsInN1YiI6IjIyYmVjc2UwNTdAa2FoZWR1LmVkdS5pbiJ9LCJjb21wYW55TmFtZSI6IkthcnBhZ2FtIEFjYWRlbXkgb2YgSGlnaGVyIEVkdWNhdGlvbiIsImNsaWVudElEIjoiNWRlMWY5M2QtZDc1YS00YTk5LWE3NDMtMTI5MWFlMmIwNTk1IiwiY2xpZW50U2VjcmV0IjoidFN5cWFSWERsQnVDbWN6byIsIm93bmVyTmFtZSI6Ik11a2lsYW4gVCIsIm93bmVyRW1haWwiOiIyMmJlY3NlMDU3QGthaGVkdS5lZHUuaW4iLCJyb2xsTm8iOiIyMmJlY3NlMDU3In0.to3_rPDpmX2yDZgJfbEcdjzSI9lBJqCSJVUtk3FB6GE`,
+            Authorization: `Bearer ${token}`,
           },
         });
         setData(response.data);
       } catch (error) {
+        setError("Error fetching data.");
         console.error("Error fetching data:", error);
+      } finally {
+        setLoading(false);
       }
     };
 
     fetchData();
-  }, []);
+  }, [token]);
 
   return (
     <div className="">
       <h1>Kahe Social Media</h1>
-      {data ? <pre>{JSON.stringify(data, null, 2)}</pre> : <p>Loading...</p>}
+      {loading ? (
+        <p>Loading...</p>
+      ) : error ? (
+        <p>{error}</p>
+      ) : (
+        <pre>{JSON.stringify(data, null, 2)}</pre>
+      )}
     </div>
   );
 }
