@@ -9,16 +9,12 @@ export default function TopUsers() {
     const fetchUsersWithPosts = async () => {
       const usersData = await fetchData("http://20.244.56.144/test/users");
       if (!usersData) return;
-
-      // Fetch post counts for each user dynamically
       const usersWithPosts = await Promise.all(
         usersData.map(async (user: any) => {
           const posts = await fetchData(`http://20.244.56.144/test/users/${user.id}/posts`);
           return { id: user.id, name: user.name, postCount: posts ? posts.length : 0 };
         })
       );
-
-      // Sort by post count and select top 5
       setUsers(usersWithPosts.sort((a, b) => b.postCount - a.postCount).slice(0, 5));
     };
 

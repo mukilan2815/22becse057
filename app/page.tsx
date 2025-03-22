@@ -1,5 +1,4 @@
 "use client";
-// filepath: c:\Users\Mukilan T\Downloads\Projects\22becse057\app\page.tsx
 import { useEffect, useState } from "react";
 import axios from "axios";
 

@@ -16,8 +16,6 @@ export default function Feed() {
         const userPosts = await fetchData(`http://20.244.56.144/test/users/${user.id}/posts`);
         if (userPosts) allPosts = [...allPosts, ...userPosts];
       }
-
-      // Sort by most recent (assuming posts have timestamps)
       setPosts(allPosts.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()));
     };
 
